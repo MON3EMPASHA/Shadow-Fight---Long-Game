@@ -1,0 +1,9 @@
+A:\CS MSA\Year 2 Term 2\Multimedia\Shadow Fight - Long Game\Shadow Fight - Long Game\bin\Debug\Shadow Fight - Long Game.exe.config
+A:\CS MSA\Year 2 Term 2\Multimedia\Shadow Fight - Long Game\Shadow Fight - Long Game\bin\Debug\Shadow Fight - Long Game.exe
+A:\CS MSA\Year 2 Term 2\Multimedia\Shadow Fight - Long Game\Shadow Fight - Long Game\bin\Debug\Shadow Fight - Long Game.pdb
+A:\CS MSA\Year 2 Term 2\Multimedia\Shadow Fight - Long Game\Shadow Fight - Long Game\obj\Debug\Shadow Fight - Long Game.csproj.AssemblyReference.cache
+A:\CS MSA\Year 2 Term 2\Multimedia\Shadow Fight - Long Game\Shadow Fight - Long Game\obj\Debug\Shadow_Fight___Long_Game.Properties.Resources.resources
+A:\CS MSA\Year 2 Term 2\Multimedia\Shadow Fight - Long Game\Shadow Fight - Long Game\obj\Debug\Shadow Fight - Long Game.csproj.GenerateResource.cache
+A:\CS MSA\Year 2 Term 2\Multimedia\Shadow Fight - Long Game\Shadow Fight - Long Game\obj\Debug\Shadow Fight - Long Game.csproj.CoreCompileInputs.cache
+A:\CS MSA\Year 2 Term 2\Multimedia\Shadow Fight - Long Game\Shadow Fight - Long Game\obj\Debug\Shadow Fight - Long Game.exe
+A:\CS MSA\Year 2 Term 2\Multimedia\Shadow Fight - Long Game\Shadow Fight - Long Game\obj\Debug\Shadow Fight - Long Game.pdb
