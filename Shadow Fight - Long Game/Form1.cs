@@ -14,7 +14,7 @@ class Hero
     public List<Bitmap> ImgsR,ImgsL,ImgsJ;
     public Hero()
     {
-        X = 100; Y=490; iframe = 0;speed = 10; flagjump = 0;
+        X = 100; Y=490; iframe = 0;speed = 30; flagjump = 0;
         //Right Movimg
         ImgsR = new List<Bitmap>();
         Bitmap monem = new Bitmap("HeroR.png");
@@ -84,6 +84,7 @@ namespace Shadow_Fight___Long_Game
         {
             flag_moving = false;
             heroList[0].iframe = 0;
+            heroList[0].Y = 490;
             DrawDubb(CreateGraphics());
 
         }
@@ -121,6 +122,8 @@ namespace Shadow_Fight___Long_Game
                         if (heroList[0].iframe == 15) { heroList[0].iframe = 2; }
                         flagheroleft = 1;
                         flag_moving = true;
+                        heroList[0].Y = 540;
+                        Tick();
                     }
                     break;
                 case Keys.Right:
@@ -131,6 +134,8 @@ namespace Shadow_Fight___Long_Game
                         if (heroList[0].iframe == 15) { heroList[0].iframe = 2; }
                         flagheroleft = 0;
                         flag_moving = true;
+                        heroList[0].Y = 540;
+                        Tick();
                     }
                     break;
                 case Keys.Up:
@@ -138,11 +143,12 @@ namespace Shadow_Fight___Long_Game
                     {
                         heroList[0].flagjump = 1;
                         heroList[0].iframe = 0;
+                        Tick();
                     }
                     break;
             
             }
-            Tick();
+            
         }
 
         private void Form1_Paint(object sender, PaintEventArgs e)
