@@ -8,13 +8,34 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
+class HealthBar
+{
+    public int X, Y, Width, Height;
+    public int MaxHealth;
+    public int CurrentHealth;
+
+    public HealthBar(int x, int y, int width, int height, int maxHealth)
+    {
+        X = x;
+        Y = y;
+        Width = width;
+        Height = height;
+        MaxHealth = maxHealth;
+        CurrentHealth = maxHealth;
+    }
+}
+
 class Hero
 {
     public int X, Y,iframe,speed,flagjump,flagkill;
     public List<Bitmap> ImgsR,ImgsL,ImgsJ,ImgsK1;
+    public HealthBar HealthBarr;
+
     public Hero()
     {
         X = 100; Y=490; iframe = 0;speed = 30; flagjump = 0; flagkill = 0;
+        //Health bar
+        HealthBarr = new HealthBar(120, 30, 270, 20, 100);
         //Right Movimg
         {
             ImgsR = new List<Bitmap>();
@@ -224,14 +245,20 @@ namespace Shadow_Fight___Long_Game
                 {
                     g.DrawImage(heroList[i].ImgsR[heroList[i].iframe], heroList[i].X, heroList[i].Y, heroList[i].ImgsR[heroList[i].iframe].Width * 2, heroList[i].ImgsR [heroList[i].iframe].Height * 2);
                 }
+                //jump
                 else if(heroList[0].flagjump == 1 && heroList[0].flagkill == 0)
                 {
                     g.DrawImage(heroList[i].ImgsJ[heroList[i].iframe], heroList[i].X, heroList[i].Y, heroList[i].ImgsJ[heroList[i].iframe].Width*4, heroList[i].ImgsJ[heroList[i].iframe].Height*4);
                 }
+                //Kill
                 else if (heroList[0].flagkill == 1 && heroList[0].flagjump == 0)
                 {
                     g.DrawImage(heroList[i].ImgsK1[heroList[i].iframe], heroList[i].X, heroList[i].Y, heroList[i].ImgsK1[heroList[i].iframe].Width * 4, heroList[i].ImgsK1[heroList[i].iframe].Height * 4);
                 }
+                //Hero Health bar
+                g.FillRectangle(Brushes.Gray, heroList[0].HealthBarr.X, heroList[0].HealthBarr.Y, heroList[0].HealthBarr.Width, heroList[0].HealthBarr.Height);
+                int currentHealthWidth = (int)((heroList[0].HealthBarr.CurrentHealth / (float)heroList[0].HealthBarr.MaxHealth) * heroList[0].HealthBarr.Width);
+                g.FillRectangle(Brushes.Red, heroList[0].HealthBarr.X, heroList[0].HealthBarr.Y, currentHealthWidth, heroList[0].HealthBarr.Height);
             }
             //Health Bar
             g.DrawImage(new Bitmap("heroHealthBar.png"), 1, 0);
