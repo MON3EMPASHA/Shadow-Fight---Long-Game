@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Shadow_Fight___Long_Game;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -7,6 +8,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.TrayNotify;
+
 
 class HealthBar
 {
@@ -152,6 +155,33 @@ namespace Shadow_Fight___Long_Game
                 heroList[0].Y = 525;
                 if (heroList[0].iframe >=3) { heroList[0].Y = 560; }
             }
+
+            if (flag_moving && heroList[0].X>399)
+            {
+                for (int i = 0; i < background.Count; i++)
+                {
+                    int s = 0;
+                    if (background.Count > 5)
+                    {
+                        if (i != 1)
+                        {
+                            if (i == 0) { s = 1/2; }
+                            if (i == 2) { s = 2; }
+                            if (i == 3) { s = 3; }
+                            if (i == 4) { s = 4; }
+                            if (i == 5) {  s = 5; }
+                            if (background[i].Rects.X + background[i].Rects.Width < background[i].Img.Width - 5)
+                            {
+                                background[i].Rects.X += s;
+                            }
+                            else
+                            {
+                                background[i].Rects.X = 0;
+                            }
+                        }
+                    }
+                }
+            }
             DrawDubb(CreateGraphics());
         }
         private void Form1_KeyDown(object sender, KeyEventArgs e)
@@ -162,6 +192,7 @@ namespace Shadow_Fight___Long_Game
                     if (heroList[0].flagjump == 0 && heroList[0].flagkill == 0)
                     {
                         heroList[0].iframe++;
+                      //  if (heroList[0].X > 400)
                         heroList[0].X -= heroList[0].speed;
                         if (heroList[0].iframe == 15) { heroList[0].iframe = 2; }
                         flagheroleft = 1;
@@ -174,6 +205,7 @@ namespace Shadow_Fight___Long_Game
                     if (heroList[0].flagjump == 0 && heroList[0].flagkill == 0)
                     {
                         heroList[0].iframe++;
+                        if(heroList[0].X < 400)
                         heroList[0].X += heroList[0].speed;
                         if (heroList[0].iframe == 15) { heroList[0].iframe = 2; }
                         flagheroleft = 0;
@@ -219,10 +251,15 @@ namespace Shadow_Fight___Long_Game
             // Creating Hero
             Hero monem = new Hero(); heroList.Add(monem);
             //Background
-            Rectangle s = new Rectangle(0,0, new Bitmap("background/1.jpg").Width, new Bitmap("background/1.jpg").Height); Rectangle d = new Rectangle(0,0, this.ClientSize.Width, this.ClientSize.Height);
-            AdvancedImage pnn = new AdvancedImage(this.ClientSize.Width, this.ClientSize.Height,s,d,new Bitmap ("background/1.jpg"));
-            background.Add(pnn);
-            
+            for (int i = 1; i <= 7; i++)
+            {
+                string filePath = $"background2/L{i}.png";
+                Bitmap bitmap = new Bitmap(filePath);
+                Rectangle sourceRect = new Rectangle(0, 0, bitmap.Width / (i == 2 || i == 7 ? 1 : 2), bitmap.Height);
+                Rectangle destRect = new Rectangle(0, 0, this.ClientSize.Width, this.ClientSize.Height);
+                AdvancedImage pnn = new AdvancedImage(this.ClientSize.Width, this.ClientSize.Height, sourceRect, destRect, bitmap);
+                background.Add(pnn);
+            }
         }
         void DrawScene(Graphics g)
         {
