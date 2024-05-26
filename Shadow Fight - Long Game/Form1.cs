@@ -109,6 +109,8 @@ namespace Shadow_Fight___Long_Game
         Timer tt = new Timer();
         //counts
         int ctjumptick = 0;
+        //backfround 
+        int backroundd = 4;//it could be 1 or 2 or 3 or 4
         public Form1()
         {
             WindowState= FormWindowState.Maximized;
@@ -160,16 +162,60 @@ namespace Shadow_Fight___Long_Game
             {
                 for (int i = 0; i < background.Count; i++)
                 {
-                    int s = 0;
-                    if (background.Count > 5)
+                    if (backroundd == 2)
                     {
-                        if (i != 1)
+                        int s = 0;
+                        if (background.Count > 5)
                         {
-                            if (i == 0) { s = 1/2; }
-                            if (i == 2) { s = 2; }
-                            if (i == 3) { s = 3; }
-                            if (i == 4) { s = 4; }
-                            if (i == 5) {  s = 5; }
+                            if (i != 1)
+                            {
+                                if (i == 0) { s = 1 / 2; }
+                                if (i == 2) { s = 2; }
+                                if (i == 3) { s = 3; }
+                                if (i == 4) { s = 4; }
+                                if (i == 5) { s = 5; }
+                                if (background[i].Rects.X + background[i].Rects.Width < background[i].Img.Width - 5)
+                                {
+                                    background[i].Rects.X += s;
+                                }
+                                else
+                                {
+                                    background[i].Rects.X = 0;
+                                }
+                            }
+                        }
+                    }
+                    else if (backroundd == 3)
+                    {
+                        int s = 0;
+                        if(background.Count > 2) 
+                        {
+                            if (i == 0) { s = 1 ; }
+                            if (i == 1) { s = 2; }
+                            if (i == 2) { s = 3; }
+ 
+                            if (background[i].Rects.X + background[i].Rects.Width < background[i].Img.Width - 5)
+                            {
+                                background[i].Rects.X += s;
+                            }
+                            else
+                            {
+                                background[i].Rects.X = 0;
+                            }
+                        }
+                    }
+                    else if(backroundd == 4)
+                    {
+                        int s = 0;
+                        if (background.Count > 4)
+                        {
+                            if (i == 0) { s = 1; }
+                            if (i == 1) { s = 2; }
+                            if (i == 2) { s = 3; }
+                            if (i == 3) { s = 4; }
+                            if (i == 4) { s = 5; }
+
+
                             if (background[i].Rects.X + background[i].Rects.Width < background[i].Img.Width - 5)
                             {
                                 background[i].Rects.X += s;
@@ -192,7 +238,6 @@ namespace Shadow_Fight___Long_Game
                     if (heroList[0].flagjump == 0 && heroList[0].flagkill == 0)
                     {
                         heroList[0].iframe++;
-                      //  if (heroList[0].X > 400)
                         heroList[0].X -= heroList[0].speed;
                         if (heroList[0].iframe == 15) { heroList[0].iframe = 2; }
                         flagheroleft = 1;
@@ -205,8 +250,12 @@ namespace Shadow_Fight___Long_Game
                     if (heroList[0].flagjump == 0 && heroList[0].flagkill == 0)
                     {
                         heroList[0].iframe++;
-                        if(heroList[0].X < 400)
-                        heroList[0].X += heroList[0].speed;
+                        if (backroundd != 1)
+                        {
+                            if (heroList[0].X < 400)
+                                heroList[0].X += heroList[0].speed;
+                        }
+                        else { heroList[0].X += heroList[0].speed; }
                         if (heroList[0].iframe == 15) { heroList[0].iframe = 2; }
                         flagheroleft = 0;
                         flag_moving = true;
@@ -251,14 +300,54 @@ namespace Shadow_Fight___Long_Game
             // Creating Hero
             Hero monem = new Hero(); heroList.Add(monem);
             //Background
-            for (int i = 1; i <= 7; i++)
+            if (backroundd == 1)
             {
-                string filePath = $"background2/L{i}.png";
-                Bitmap bitmap = new Bitmap(filePath);
-                Rectangle sourceRect = new Rectangle(0, 0, bitmap.Width / (i == 2 || i == 7 ? 1 : 2), bitmap.Height);
-                Rectangle destRect = new Rectangle(0, 0, this.ClientSize.Width, this.ClientSize.Height);
-                AdvancedImage pnn = new AdvancedImage(this.ClientSize.Width, this.ClientSize.Height, sourceRect, destRect, bitmap);
-                background.Add(pnn);
+                for (int i = 1; i <2; i++)
+                {
+                    string filePath = $"backgrounds/background/{i}.jpg";
+                    Bitmap bitmap = new Bitmap(filePath);
+                    Rectangle sourceRect = new Rectangle(0, 0, bitmap.Width , bitmap.Height);
+                    Rectangle destRect = new Rectangle(0, 0, this.ClientSize.Width, this.ClientSize.Height);
+                    AdvancedImage pnn = new AdvancedImage(this.ClientSize.Width, this.ClientSize.Height, sourceRect, destRect, bitmap);
+                    background.Add(pnn);
+                }
+            }
+            else if (backroundd == 2)
+            {
+                for (int i = 1; i <= 7; i++)
+                {
+                    string filePath = $"backgrounds/background2/L{i}.png";
+                    Bitmap bitmap = new Bitmap(filePath);
+                    Rectangle sourceRect = new Rectangle(0, 0, bitmap.Width / (i == 2 || i == 7 ? 1 : 2), bitmap.Height);
+                    Rectangle destRect = new Rectangle(0, 0, this.ClientSize.Width, this.ClientSize.Height);
+                    AdvancedImage pnn = new AdvancedImage(this.ClientSize.Width, this.ClientSize.Height, sourceRect, destRect, bitmap);
+                    background.Add(pnn);
+                }
+            }
+            else if(backroundd == 3)
+            {
+                for (int i = 1; i <= 3; i++)
+                {
+                    string filePath = $"backgrounds/background3/{i}.png";
+                    Bitmap bitmap = new Bitmap(filePath);
+                    Rectangle sourceRect = new Rectangle(0, 0, bitmap.Width / 2, bitmap.Height);
+                    Rectangle destRect = new Rectangle(0, 0, this.ClientSize.Width, this.ClientSize.Height);
+                    AdvancedImage pnn = new AdvancedImage(this.ClientSize.Width, this.ClientSize.Height, sourceRect, destRect, bitmap);
+                    background.Add(pnn);
+                }
+            }
+            else if (backroundd == 4)
+            {
+                for (int i = 1; i <= 5; i++)
+                {
+                    string filePath = $"backgrounds/background4/{i}.png";
+                    Bitmap bitmap = new Bitmap(filePath);
+                    Rectangle sourceRect = new Rectangle(0, 0, bitmap.Width/2, bitmap.Height);
+                    Rectangle destRect = new Rectangle(0, 0, this.ClientSize.Width, this.ClientSize.Height);
+                    AdvancedImage pnn = new AdvancedImage(this.ClientSize.Width, this.ClientSize.Height, sourceRect, destRect, bitmap);
+                    background.Add(pnn);
+                }
+
             }
         }
         void DrawScene(Graphics g)
