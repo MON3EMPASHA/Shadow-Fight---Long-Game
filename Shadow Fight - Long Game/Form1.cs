@@ -192,7 +192,7 @@ namespace Shadow_Fight___Long_Game
                         {
                             if (i == 0) { s = 1 ; }
                             if (i == 1) { s = 2; }
-                            if (i == 2) { s = 3; }
+                            if (i == 2) { s = 5; }
  
                             if (background[i].Rects.X + background[i].Rects.Width < background[i].Img.Width - 5)
                             {
