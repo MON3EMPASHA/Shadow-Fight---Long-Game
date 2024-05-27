@@ -27,7 +27,6 @@ class HealthBar
         CurrentHealth = maxHealth;
     }
 }
-
 class Hero
 {
     public int X, Y,iframe,speed,flagjump,flagkill;
@@ -95,6 +94,27 @@ class AdvancedImage
         Img = img;
     }
 }
+class Enemy
+{
+    public int X, Y, W, H,iframe;
+    public List<Bitmap> Idle;
+    public Enemy(int type)
+    {
+        iframe = 0;
+        //Create Enemy 2
+        if (type == 2)
+        {
+            X = 700;Y = 380;
+            Idle = new List<Bitmap>();
+            for (int i = 1; i <= 9; i++)
+            {
+                string filePath = $"Enmy2/idle/{i}.png";
+                Bitmap bitmap = new Bitmap(filePath);
+                Idle.Add(bitmap);
+            }
+        }
+    }
+}
 namespace Shadow_Fight___Long_Game
 {
     public partial class Form1 : Form
@@ -102,7 +122,9 @@ namespace Shadow_Fight___Long_Game
         //Bitmaps
         Bitmap off;
         //Lists
-        List<Hero> heroList=new List<Hero>(); List<AdvancedImage> background = new List<AdvancedImage>(); 
+        List<Hero> heroList=new List<Hero>(); 
+        List<AdvancedImage> background = new List<AdvancedImage>(); 
+        List<Enemy> enemylist=new List<Enemy>();
         //Flags
         int flagheroleft = 0; Boolean flag_moving = false;
         //Timer
@@ -110,7 +132,7 @@ namespace Shadow_Fight___Long_Game
         //counts
         int ctjumptick = 0;
         //backfround 
-        int backroundd = 4;//it could be 1 or 2 or 3 or 4 or 5
+        int backroundd = 5;//it could be 1 or 2 or 3 or 4 or 5
         int bcgrondiframe = 0;//used in the fifth background only
         public Form1()
         {
@@ -141,7 +163,27 @@ namespace Shadow_Fight___Long_Game
             herojump();
             herokill();
             MoveBackground();
-            DrawDubb(CreateGraphics());
+            Background5enemy();
+            MangeEnmies();
+        }
+        void MangeEnmies()
+        {
+            for(int i = 0;i<enemylist.Count;i++)
+            {
+                Enemy e = enemylist[i];
+                e.iframe++;
+                if (e.iframe == e.Idle.Count ) 
+                {
+                    e.iframe = 0;
+                }
+            }
+        }
+        void Background5enemy()
+        {
+            if (backroundd == 5)
+            {
+
+            }
         }
         void herojump()
         {
@@ -366,6 +408,8 @@ namespace Shadow_Fight___Long_Game
                             AdvancedImage pnn = new AdvancedImage(this.ClientSize.Width, this.ClientSize.Height, sourceRect, destRect, bitmap);
                             background.Add(pnn);
                         }
+                        Enemy monemm = new Enemy(2);
+                        enemylist.Add(monemm);
                         break;
                 }
 
@@ -384,8 +428,7 @@ namespace Shadow_Fight___Long_Game
             }
             else
             {
-
-                    g.DrawImage(background[bcgrondiframe].Img, background[bcgrondiframe].Rectd, background[bcgrondiframe].Rects, GraphicsUnit.Pixel);
+                g.DrawImage(background[bcgrondiframe].Img, background[bcgrondiframe].Rectd, background[bcgrondiframe].Rects, GraphicsUnit.Pixel);
                 bcgrondiframe++;
                 if (bcgrondiframe == 16) { bcgrondiframe = 0; }
             }
@@ -416,6 +459,12 @@ namespace Shadow_Fight___Long_Game
                 g.FillRectangle(Brushes.Gray, heroList[0].HealthBarr.X, heroList[0].HealthBarr.Y, heroList[0].HealthBarr.Width, heroList[0].HealthBarr.Height);
                 int currentHealthWidth = (int)((heroList[0].HealthBarr.CurrentHealth / (float)heroList[0].HealthBarr.MaxHealth) * heroList[0].HealthBarr.Width);
                 g.FillRectangle(Brushes.Red, heroList[0].HealthBarr.X, heroList[0].HealthBarr.Y, currentHealthWidth, heroList[0].HealthBarr.Height);
+            }
+            //Enmmy
+            for(int i = 0; i < enemylist.Count; i++)
+            {
+                Enemy e = enemylist[i];
+                g.DrawImage(e.Idle[e.iframe],e.X,e.Y);
             }
             //Health Bar
             g.DrawImage(new Bitmap("heroHealthBar.png"), 1, 0);
