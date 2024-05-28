@@ -97,14 +97,17 @@ class AdvancedImage
 class Enemy
 {
     public int X, Y, W, H,iframe;
-    public List<Bitmap> Idle;
+    public List<Bitmap> Idle,k1;
+    public string flaglist;
     public Enemy(int type)
     {
         iframe = 0;
         //Create Enemy 2
         if (type == 2)
         {
+            flaglist = "Idle";
             X = 700;Y = 380;
+            //Stand state
             Idle = new List<Bitmap>();
             for (int i = 1; i <= 9; i++)
             {
@@ -112,6 +115,15 @@ class Enemy
                 Bitmap bitmap = new Bitmap(filePath);
                 Idle.Add(bitmap);
             }
+            //kill 1  movements
+            k1 = new List<Bitmap>();
+            for (int i = 1; i <= 27; i++)
+            {
+                string filePath = $"Enmy2/k1/{i}.png";
+                Bitmap bitmap = new Bitmap(filePath);
+                k1.Add(bitmap);
+            }
+
         }
     }
 }
@@ -130,7 +142,7 @@ namespace Shadow_Fight___Long_Game
         //Timer
         Timer tt = new Timer();
         //counts
-        int ctjumptick = 0;
+        int ctenmy2tick=0;
         //backfround 
         int backroundd = 5;//it could be 1 or 2 or 3 or 4 or 5
         int bcgrondiframe = 0;//used in the fifth background only
@@ -163,26 +175,49 @@ namespace Shadow_Fight___Long_Game
             herojump();
             herokill();
             MoveBackground();
-            Background5enemy();
-            MangeEnmies();
+            ManageAndMoveEnemies();
         }
-        void MangeEnmies()
+        void ManageAndMoveEnemies()
         {
-            for(int i = 0;i<enemylist.Count;i++)
+            for (int i = 0; i < enemylist.Count; i++)
             {
-                Enemy e = enemylist[i];
-                e.iframe++;
-                if (e.iframe == e.Idle.Count ) 
-                {
-                    e.iframe = 0;
-                }
-            }
-        }
-        void Background5enemy()
-        {
-            if (backroundd == 5)
-            {
+                Enemy enemy = enemylist[i];
 
+                if (backroundd == 5 && enemy.flaglist == "Idle")
+                {
+                    ctenmy2tick++;
+                    if (ctenmy2tick >= 40)
+                    {
+                        enemy.flaglist = "k1";
+                        enemy.iframe = 0;
+                        ctenmy2tick = 0;
+                    }
+                }
+
+                enemy.iframe++;
+                List<Bitmap> temp = new List<Bitmap>();
+
+                if (enemy.flaglist == "Idle")
+                {
+                    temp = enemy.Idle;
+                }
+                else if (enemy.flaglist == "k1")
+                {
+                    temp = enemy.k1;
+                }
+
+                if (enemy.iframe == temp.Count)
+                {
+                    if (enemy.flaglist == "k1")
+                    {
+                        enemy.flaglist = "Idle";
+                        enemy.iframe = 0;
+                    }
+                    else
+                    {
+                        enemy.iframe = 0;
+                    }
+                }
             }
         }
         void herojump()
@@ -193,7 +228,6 @@ namespace Shadow_Fight___Long_Game
                 else if (heroList[0].iframe >= 9) { heroList[0].Y += heroList[0].speed; }
                 if (heroList[0].iframe == 16) { heroList[0].Y += heroList[0].speed * 3; }
                 if (heroList[0].iframe == 18) { heroList[0].iframe = 0; heroList[0].flagjump = 0; flag_moving = false; heroList[0].Y -= heroList[0].speed * 3; }
-                ctjumptick = 0;
                 heroList[0].iframe++;
             }
         }
@@ -464,7 +498,10 @@ namespace Shadow_Fight___Long_Game
             for(int i = 0; i < enemylist.Count; i++)
             {
                 Enemy e = enemylist[i];
-                g.DrawImage(e.Idle[e.iframe],e.X,e.Y);
+                List<Bitmap>temp= new List<Bitmap>();
+                if(e.flaglist== "Idle") { temp = e.Idle; }
+                else if(e.flaglist == "k1") { temp = e.k1; }
+                g.DrawImage(temp[e.iframe],e.X,e.Y);
             }
             //Health Bar
             g.DrawImage(new Bitmap("heroHealthBar.png"), 1, 0);
