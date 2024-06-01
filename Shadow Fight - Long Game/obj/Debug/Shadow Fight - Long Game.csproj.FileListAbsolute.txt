@@ -7,3 +7,12 @@ A:\CS MSA\Year 2 Term 2\Multimedia\Shadow Fight - Long Game\Shadow Fight - Long 
 A:\CS MSA\Year 2 Term 2\Multimedia\Shadow Fight - Long Game\Shadow Fight - Long Game\obj\Debug\Shadow Fight - Long Game.csproj.CoreCompileInputs.cache
 A:\CS MSA\Year 2 Term 2\Multimedia\Shadow Fight - Long Game\Shadow Fight - Long Game\obj\Debug\Shadow Fight - Long Game.exe
 A:\CS MSA\Year 2 Term 2\Multimedia\Shadow Fight - Long Game\Shadow Fight - Long Game\obj\Debug\Shadow Fight - Long Game.pdb
+E:\01_Development\Programming\MultiMedia\New folder\Shadow-Knight---Long-Game\Shadow Fight - Long Game\bin\Debug\Shadow Fight - Long Game.exe.config
+E:\01_Development\Programming\MultiMedia\New folder\Shadow-Knight---Long-Game\Shadow Fight - Long Game\bin\Debug\Shadow Fight - Long Game.exe
+E:\01_Development\Programming\MultiMedia\New folder\Shadow-Knight---Long-Game\Shadow Fight - Long Game\bin\Debug\Shadow Fight - Long Game.pdb
+E:\01_Development\Programming\MultiMedia\New folder\Shadow-Knight---Long-Game\Shadow Fight - Long Game\obj\Debug\Shadow Fight - Long Game.csproj.AssemblyReference.cache
+E:\01_Development\Programming\MultiMedia\New folder\Shadow-Knight---Long-Game\Shadow Fight - Long Game\obj\Debug\Shadow_Fight___Long_Game.Properties.Resources.resources
+E:\01_Development\Programming\MultiMedia\New folder\Shadow-Knight---Long-Game\Shadow Fight - Long Game\obj\Debug\Shadow Fight - Long Game.csproj.GenerateResource.cache
+E:\01_Development\Programming\MultiMedia\New folder\Shadow-Knight---Long-Game\Shadow Fight - Long Game\obj\Debug\Shadow Fight - Long Game.csproj.CoreCompileInputs.cache
+E:\01_Development\Programming\MultiMedia\New folder\Shadow-Knight---Long-Game\Shadow Fight - Long Game\obj\Debug\Shadow Fight - Long Game.exe
+E:\01_Development\Programming\MultiMedia\New folder\Shadow-Knight---Long-Game\Shadow Fight - Long Game\obj\Debug\Shadow Fight - Long Game.pdb
