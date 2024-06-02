@@ -60,7 +60,7 @@ class HeroActor
             for (int i = 1; i < 3; i++)
                 walk.Add(new Bitmap(new Bitmap("Man/walk/" + i + ".png"), width, height));
 
-            for (int i = 1; i < 8; i++)
+            for (int i = 1; i < 9; i++)
                 jumb.Add(new Bitmap(new Bitmap("Man/jumb/" + i + ".png"), width, height));
         
             for (int i = 1; i < 7; i++)
@@ -71,7 +71,7 @@ class HeroActor
             for (int i = 1; i < 3; i++)
                 walk.Add(new Bitmap("Man/walk/" + i + ".png"));
 
-            for (int i = 1; i < 8; i++)
+            for (int i = 1; i < 9; i++)
                 jumb.Add(new Bitmap("Man/jumb/" + i + ".png"));
 
             for (int i = 1; i < 7; i++)
@@ -262,7 +262,7 @@ namespace Shadow_Fight___Long_Game
 
         //Flags
         int flagheroleft = 0; bool flag_moving = false;
-        int zombieBackground = 2, bossBackground = 4, heroIndex = 1;
+        int zombieBackground = 3, bossBackground = 4, heroIndex = 1;
         bool flagtale3selm = false; bool flagfall=false;
         bool leaveHeroAlone = false;
 
@@ -274,7 +274,7 @@ namespace Shadow_Fight___Long_Game
         int timerCounter = -1, timerLimit = 50;
 
         //backfround 
-        int backGroundIndex = 2; // it could be 1 or 2 or 3 or 4 or 5
+        int backGroundIndex = 3; // it could be 1 or 2 or 3 or 4 or 5
         int bcgrondiframe = 0; // used in the fifth background only
 
 
@@ -308,7 +308,7 @@ namespace Shadow_Fight___Long_Game
                 flagtale3selm = false;
                 flagfall = true;
             }
-            DrawDubb(CreateGraphics());
+           // DrawDubb(CreateGraphics());
         }
 
         void handleHeroEvents()
@@ -344,22 +344,22 @@ namespace Shadow_Fight___Long_Game
             }
 
             // 1. Jumb
-            int speed = 5, mid = 20, bulletSpeed = 30;
+            int speed = 5, mid = 4, bulletSpeed = 30;
             if(Hero != null && Hero.jumbFlag != 0)
             {
-                if(Hero.jumbFlag < mid)
+                if(Hero.jumbFlag <= mid)
                 {
-                    Hero.x += speed;
-                    Hero.y -= speed;
+                    Hero.x += speed * 2;
+                    Hero.y -= speed*2;
                     Hero.jumbFlag += 1;
                 }
-                if(Hero.jumbFlag >= mid)
+                if(Hero.jumbFlag >mid)
                 {
-                    Hero.x += speed;
-                    Hero.y += speed;
+                    Hero.x += speed * 2;
+                    Hero.y += speed*2;
                     Hero.jumbFlag += 1;
                 }
-                if (Hero.jumbFlag == mid * 2)
+                if (Hero.jumbFlag == 9)
                 {
                     Hero.jumbFlag = 0;
                     Hero.setFrames(Hero.walk);
@@ -564,7 +564,7 @@ namespace Shadow_Fight___Long_Game
             if ( flag_moving  )
             {
                 
-                if((heroIndex==1&& Hero!=null && Hero.x > 399 && zombieDead < zombieDeadLimit)|| (heroIndex==2 && heroList[0].X>399))
+                if((heroIndex==1&& Hero!=null && Hero.x > 399 && (zombieDead < zombieDeadLimit)||backGroundIndex==4)|| (heroIndex==2 && heroList[0].X>399))
                 {
                     for (int i = 0; i < background.Count; i++)
                     {
@@ -731,17 +731,18 @@ namespace Shadow_Fight___Long_Game
                             }
                             break;
                         case 1:
-                            if (Hero.x+Hero.image.Width/2 > leadder.x && Hero.x + Hero.image.Width / 2 < leadder.x + leadder.image.Width)
+                            if (leadder!=null&& Hero.x+Hero.image.Width/2 > leadder.x && Hero.x + Hero.image.Width / 2 < leadder.x + leadder.image.Width )
                             {
                                 flagtale3selm = true;
                                 etl3lader(1);
                             }
                             else
                             {
-
-
-                                Hero.setFrames(Hero.jumb);
-                                Hero.jumbFlag = 1;
+                                if (Hero.jumbFlag == 0)
+                                {
+                                    Hero.setFrames(Hero.jumb);
+                                    Hero.jumbFlag = 1;
+                                }
                             }
                             break;
                     }
@@ -817,6 +818,7 @@ namespace Shadow_Fight___Long_Game
                     break;
                 
             }
+            
         }
         private void Form1_Paint(object sender, PaintEventArgs e)
         {
