@@ -57,7 +57,7 @@ class HeroActor
 
         if(width > 0 && height > 0)
         {
-            for (int i = 1; i < 9; i++)
+            for (int i = 1; i < 3; i++)
                 walk.Add(new Bitmap(new Bitmap("Man/walk/" + i + ".png"), width, height));
 
             for (int i = 1; i < 8; i++)
@@ -68,7 +68,7 @@ class HeroActor
         }
         else
         {
-            for (int i = 1; i < 9; i++)
+            for (int i = 1; i < 3; i++)
                 walk.Add(new Bitmap("Man/walk/" + i + ".png"));
 
             for (int i = 1; i < 8; i++)
@@ -256,28 +256,37 @@ namespace Shadow_Fight___Long_Game
         List<Enemy> enemylist = new List<Enemy>();
         List<HeroActor> Bullets = new List<HeroActor>();
         List<HeroActor> Zombies = new List<HeroActor>();
+        List<HeroActor> leadders = new List<HeroActor>();
+        
+        List<int> trackZombies = new List<int>();
 
         //Flags
         int flagheroleft = 0; bool flag_moving = false;
+        int zombieBackground = 2, bossBackground = 4, heroIndex = 1;
+        bool flagtale3selm = false; bool flagfall=false;
+        bool leaveHeroAlone = false;
 
         //Timer
         Timer tt = new Timer();
 
         //counts
         int ctenmy2tick = 0;
-        int timerCounter = -1, timerLimit = 100;
+        int timerCounter = -1, timerLimit = 50;
 
         //backfround 
-        int backGroundIndex = 1; // it could be 1 or 2 or 3 or 4 or 5
+        int backGroundIndex = 2; // it could be 1 or 2 or 3 or 4 or 5
         int bcgrondiframe = 0; // used in the fifth background only
+
 
         // Actors
         HeroActor Hero;
         Rectangle laser;
-        List<int> trackZombies = new List<int>();
+        HeroActor leadder;
         int bulletsLimit = 50;
-        int heroHealth = 270, zombieEatings = 0, zombieDead = 0, zombieDeadLimit = 20;
+        int heroHealth = 270, zombieEatings = 0, zombieDead = 0, zombieDeadLimit = 1;
+        bool finishRound = false;
 
+        
         public Form1()
         {
             WindowState= FormWindowState.Maximized;
@@ -294,7 +303,12 @@ namespace Shadow_Fight___Long_Game
             heroList[0].iframe = 0;
             heroList[0].Y = 490;
             laser = null;
-            //DrawDubb(CreateGraphics());
+            if (flagtale3selm)
+            {
+                flagtale3selm = false;
+                flagfall = true;
+            }
+            DrawDubb(CreateGraphics());
         }
 
         void handleHeroEvents()
@@ -309,18 +323,22 @@ namespace Shadow_Fight___Long_Game
                 HeroActor zombie = Zombies[i];
                 if(zombie.health > 0 && zombie.eating == false)
                     zombie.x -= 5;
-                if(zombie.x - 20 < Hero.x + Hero.image.Width - 50 && zombie.x - 20 > Hero.x && zombie.eating == false)
+                if(Hero != null)
                 {
-                    zombie.eating = true;
-                    zombie.setFrames(zombie.jumb);
-                    zombieEatings += 1;
+                    if(zombie.x - 20 < Hero.x + Hero.image.Width - 50 && zombie.x - 20 > Hero.x && zombie.eating == false)
+                    {
+                        zombie.eating = true;
+                        zombie.setFrames(zombie.jumb);
+                        zombieEatings += 1;
                     
-                }
-                if(zombie.eating && !(zombie.x - 20 < Hero.x + Hero.image.Width - 50 && zombie.x - 20 > Hero.x))
-                {
-                    zombie.setFrames(zombie.walk);
-                    zombie.eating = false;
-                    zombieEatings -= 1;
+                    }
+                    if(zombie.eating && !(zombie.x - 20 < Hero.x + Hero.image.Width - 50 && zombie.x - 20 > Hero.x))
+                    {
+                        zombie.setFrames(zombie.walk);
+                        zombie.eating = false;
+                        zombieEatings -= 1;
+                    }
+
                 }
                 zombie.Next();
             }
@@ -395,6 +413,7 @@ namespace Shadow_Fight___Long_Game
         }
         void createZombie()
         {
+            
             HeroActor zombie = new HeroActor(ClientSize.Width, 625, 0, 0, "Zombies/Zombie1/zombiewalk (1).png", false, false);
             zombie.Frames = new List<Bitmap>();
             zombie.walk = new List<Bitmap>();
@@ -416,27 +435,68 @@ namespace Shadow_Fight___Long_Game
         }
         private void Tt_Tick(object sender, EventArgs e)
         {
-            if(timerCounter == timerLimit || timerCounter == -1)
-            {
-                timerCounter = 0;
-                if(backGroundIndex == 1)
-                    createZombie();
-            }
-            timerCounter++;
             Tick();
-            handleHeroEvents();
             DrawDubb(CreateGraphics());
-            
         }
         void Tick()
         {
-            if(heroList.Count > 0)
+            finishRound = zombieDead >= zombieDeadLimit;
+            if (timerCounter == timerLimit || timerCounter == -1)
+            {
+                timerCounter = 0;
+                if (backGroundIndex == zombieBackground && !finishRound)
+                    createZombie();
+            }
+            if (timerCounter == -1 && backGroundIndex == zombieBackground && zombieDead <= zombieDeadLimit)
+                createZombie();
+            timerCounter++;
+            handleHeroEvents();
+
+            //if(zombieDead >= zombieDeadLimit && Hero != null && Hero.x < ClientSize.Width / 2)
+            if (finishRound)
+            {
+                if (leadder == null)
+                    leadder = new HeroActor(ClientSize.Width - 200, 200, 0, 0, "ladder.png", false, false);
+                if (leadders.Count == 0)
+                {
+
+                }
+                if (Hero != null && Hero.x < ClientSize.Width / 2 && leaveHeroAlone == false)
+                    Hero.x = ClientSize.Width / 2 + 2;
+                if (Zombies.Count != 0)
+                {
+                    Zombies.Clear();
+                }
+                trackZombies.Clear();
+            }
+
+            if (heroList.Count > 0)
             {
                 herojump();
                 herokill();
             }
             MoveBackground();
             ManageAndMoveEnemies();
+            if(flagfall )
+            {
+                if (Hero.y < 630)
+                    Hero.y += 20;
+                else flagfall = false;
+            }
+            
+        }
+        void etl3lader(int index)
+        {
+            Hero.y -= 5;
+            if (Hero.y < 300)
+            {
+                backGroundIndex = 4;
+                Hero.x = 50;
+                leaveHeroAlone = true;
+                
+                
+                InitializeGame();
+            }
         }
         void ManageAndMoveEnemies()
         {
@@ -501,24 +561,46 @@ namespace Shadow_Fight___Long_Game
         }
         void MoveBackground()
         {
-            if (heroList[0] != null && flag_moving && heroList[0].X > 399)
+            if ( flag_moving  )
             {
-                for (int i = 0; i < background.Count; i++)
+                
+                if((heroIndex==1&& Hero!=null && Hero.x > 399 && zombieDead < zombieDeadLimit)|| (heroIndex==2 && heroList[0].X>399))
                 {
-                    int s = 0;
-                    switch (backGroundIndex)
+                    for (int i = 0; i < background.Count; i++)
                     {
-                        case 2:
-                             s = 0;
-                            if (background.Count > 5)
-                            {
-                                if (i != 1)
+                        int s = 0;
+                        switch (backGroundIndex)
+                        {
+                            case 2:
+                                s = 0;
+                                if (background.Count > 5)
                                 {
-                                    if (i == 0) { s = 1 / 2; }
-                                    if (i == 2) { s = 2; }
-                                    if (i == 3) { s = 3; }
-                                    if (i == 4) { s = 4; }
-                                    if (i == 5) { s = 5; }
+                                    if (i != 1)
+                                    {
+                                        if (i == 0) { s = 1 / 2; }
+                                        if (i == 2) { s = 2; }
+                                        if (i == 3) { s = 3; }
+                                        if (i == 4) { s = 4; }
+                                        if (i == 5) { s = 5; }
+                                        if (background[i].Rects.X + background[i].Rects.Width < background[i].Img.Width - 5)
+                                        {
+                                            background[i].Rects.X += s;
+                                        }
+                                        else
+                                        {
+                                            background[i].Rects.X = 0;
+                                        }
+                                    }
+                                }
+                                break;
+                            case 3:
+                                s = 0;
+                                if (background.Count > 2)
+                                {
+                                    if (i == 0) { s = 1; }
+                                    if (i == 1) { s = 2; }
+                                    if (i == 2) { s = 5; }
+
                                     if (background[i].Rects.X + background[i].Rects.Width < background[i].Img.Width - 5)
                                     {
                                         background[i].Rects.X += s;
@@ -528,49 +610,33 @@ namespace Shadow_Fight___Long_Game
                                         background[i].Rects.X = 0;
                                     }
                                 }
-                            }
-                            break;
-                        case 3:
-                             s = 0;
-                            if (background.Count > 2)
-                            {
-                                if (i == 0) { s = 1; }
-                                if (i == 1) { s = 2; }
-                                if (i == 2) { s = 5; }
-
-                                if (background[i].Rects.X + background[i].Rects.Width < background[i].Img.Width - 5)
+                                break;
+                            case 4:
+                                s = 0;
+                                if (background.Count > 4)
                                 {
-                                    background[i].Rects.X += s;
-                                }
-                                else
-                                {
-                                    background[i].Rects.X = 0;
-                                }
-                            }
-                            break;
-                        case 4:
-                             s = 0;
-                            if (background.Count > 4)
-                            {
-                                if (i == 0) { s = 1; }
-                                if (i == 1) { s = 2; }
-                                if (i == 2) { s = 3; }
-                                if (i == 3) { s = 4; }
-                                if (i == 4) { s = 5; }
+                                    if (i == 0) { s = 1; }
+                                    if (i == 1) { s = 2; }
+                                    if (i == 2) { s = 3; }
+                                    if (i == 3) { s = 4; }
+                                    if (i == 4) { s = 5; }
 
 
-                                if (background[i].Rects.X + background[i].Rects.Width < background[i].Img.Width - 5)
-                                {
-                                    background[i].Rects.X += s;
+                                    if (background[i].Rects.X + background[i].Rects.Width < background[i].Img.Width - 5)
+                                    {
+                                        background[i].Rects.X += s;
+                                    }
+                                    else
+                                    {
+                                        background[i].Rects.X = 0;
+                                    }
                                 }
-                                else
-                                {
-                                    background[i].Rects.X = 0;
-                                }
-                            }
-                            break;
+                                break;
+                        }
                     }
+
                 }
+
             }
         }
         
@@ -591,9 +657,11 @@ namespace Shadow_Fight___Long_Game
             switch (e.KeyCode)
             {
                 case Keys.Left:
-                    switch (backGroundIndex)
+                    flag_moving = true;
+
+                    switch (heroIndex)
                     {
-                        case 5:
+                        case 2:
                             if (heroList[0] != null && heroList[0].flagjump == 0 && heroList[0].flagkill == 0)
                             {
                                 heroList[0].iframe++;
@@ -605,26 +673,31 @@ namespace Shadow_Fight___Long_Game
                             }
                             break;
                         case 1:
-                            if (Hero.Frames[0] != Hero.walk[0])
-                                Hero.setFrames(Hero.walk);
 
-                            Hero.x -= speed;
-                            Hero.Next();
+                            if (!flagtale3selm && !flagfall)
+                            {
+                                if (Hero.Frames[0] != Hero.walk[0])
+                                    Hero.setFrames(Hero.walk);
+                                Hero.x -= speed;
+                                Hero.Next();
+                            }
                             break;
                     }
 
                         
                     break;
                 case Keys.Right:
-                    switch (backGroundIndex)
+                    flag_moving = true;
+
+                    switch (heroIndex)
                     {
-                        case 5:
+                        case 2:
                             if (heroList[0] != null && heroList[0].flagjump == 0 && heroList[0].flagkill == 0)
                             {
                                 heroList[0].iframe++;
                                 if (backGroundIndex != 1 && backGroundIndex != 5)
                                 {
-                                    if (heroList[0].X < 400)
+                                    if ((heroIndex == 2 && heroList[0].X < 400) || (heroIndex == 1 && Hero.x<400))
                                         heroList[0].X += heroList[0].speed;
                                 }
                                 else { heroList[0].X += heroList[0].speed; }
@@ -635,18 +708,22 @@ namespace Shadow_Fight___Long_Game
                             }
                             break;
                         case 1:
-                            if (Hero.Frames[0] != Hero.walk[0])
-                                Hero.setFrames(Hero.walk);
 
-                            Hero.x += speed;
-                            Hero.Next();
+                                if (!flagtale3selm && !flagfall)
+                                {
+                                if (Hero.Frames[0] != Hero.walk[0])
+                                    Hero.setFrames(Hero.walk);
+                                if ((heroIndex == 1 && Hero.x < 400) || zombieDead == zombieDeadLimit)
+                                    Hero.x += speed;
+                                    Hero.Next();
+                                }
                             break;
                     }
                     break;                 
                 case Keys.Up:
-                    switch (backGroundIndex)
+                    switch (heroIndex)
                     {
-                        case 5:
+                        case 2:
                             if (heroList[0] != null && heroList[0].flagjump == 0 && heroList[0].flagkill == 0)
                             {
                                 heroList[0].flagjump = 1;
@@ -654,16 +731,26 @@ namespace Shadow_Fight___Long_Game
                             }
                             break;
                         case 1:
-                            Hero.setFrames(Hero.jumb);
-                            Hero.jumbFlag = 1;
+                            if (Hero.x+Hero.image.Width/2 > leadder.x && Hero.x + Hero.image.Width / 2 < leadder.x + leadder.image.Width)
+                            {
+                                flagtale3selm = true;
+                                etl3lader(1);
+                            }
+                            else
+                            {
+
+
+                                Hero.setFrames(Hero.jumb);
+                                Hero.jumbFlag = 1;
+                            }
                             break;
                     }
                     
                     break;
                 case Keys.Space:
-                    switch (backGroundIndex)
+                    switch (heroIndex)
                     {
-                        case 5:
+                        case 2:
                             if (heroList[0] != null && heroList[0].flagjump == 0 && heroList[0].flagkill == 0)
                             {
                                 heroList[0].flagkill = 1;
@@ -674,7 +761,7 @@ namespace Shadow_Fight___Long_Game
                             if (bulletsLimit > 0)
                             {
 
-                                Bullets.Add(new HeroActor(Hero.x + Hero.image.Width - 30, Hero.y + 25, 50, 20, "Man/bullet3.png", false, false));
+                                Bullets.Add(new HeroActor(Hero.x + Hero.image.Width - 30, Hero.y + 25, 25, 10, "Man/bullet3.png", false, false));
                                 bulletsLimit -= 1;
                             }
                             break;
@@ -717,7 +804,18 @@ namespace Shadow_Fight___Long_Game
                         backGroundIndex = 1;
                     InitializeGame();
                     break;
-            
+                case Keys.Down:
+                    if(heroIndex==1)
+                    {
+                        heroIndex = 2;
+                    }
+                    else
+                    {
+                        heroIndex = 1;
+                    }
+                    InitializeGame();
+                    break;
+                
             }
         }
         private void Form1_Paint(object sender, PaintEventArgs e)
@@ -734,7 +832,10 @@ namespace Shadow_Fight___Long_Game
             //Initializing when Pressing R
             heroList.Clear(); background.Clear(); bcgrondiframe = 0;
             Bullets.Clear(); Zombies.Clear();
+            enemylist.Clear();
             zombieEatings = 0;
+            timerCounter = -1;
+            Zombies.Clear();
             Hero = null;
             heroHealth = 270;
             // Creating Hero
@@ -745,13 +846,17 @@ namespace Shadow_Fight___Long_Game
                 y = 490;
 
             bool show = false;
-            if(backGroundIndex == 5)
+            if(heroIndex == 2)
                 show = true;
             Hero monem = new Hero(100, y, show); 
             heroList.Add(monem);
-            if (backGroundIndex == 1) 
+            if (heroIndex == 1) 
                 Hero = new HeroActor(100, 630, 150, 150, "Man/walk/1.png", false, false);
-            
+            if(backGroundIndex == bossBackground)
+            {
+                Enemy monemm = new Enemy(2);
+                enemylist.Add(monemm);
+            }
             
 
             //Background
@@ -812,8 +917,7 @@ namespace Shadow_Fight___Long_Game
                             AdvancedImage pnn = new AdvancedImage(this.ClientSize.Width, this.ClientSize.Height, sourceRect, destRect, bitmap);
                             background.Add(pnn);
                         }
-                        Enemy monemm = new Enemy(2);
-                        enemylist.Add(monemm);
+                        
                         break;
                 }
 
@@ -925,11 +1029,13 @@ namespace Shadow_Fight___Long_Game
             drawBackGround(g);
             drawHero1(g);
             drawEnemy(g);
+            if(!leaveHeroAlone)
+                drawSingleImage(leadder, g);
             drawSingleImage(Hero, g);
             DrawListImages(Bullets, g);
             DrawListImages(Zombies, g);
 
-            if(backGroundIndex == 1)
+            if(heroIndex == 1)
             {
                 // bullets
                 g.DrawString("" + bulletsLimit, new Font("Arial", 16, FontStyle.Bold), Brushes.White, 160, 80);
@@ -941,14 +1047,11 @@ namespace Shadow_Fight___Long_Game
             }
             drawHealth(Zombies, g);
             
+
             if(laser != null)
             {
                 g.FillRectangle(new SolidBrush(laser.cl), laser.x, laser.y, laser.Widht, laser.Heigth);
                 g.DrawRectangle(new Pen(Color.Black, 3), laser.x, laser.y, laser.Widht, laser.Heigth);
-            }
-            if(backGroundIndex == 1)
-            {
-                
             }
             g.FillRectangle(new SolidBrush(Color.Red), 120, 30, heroHealth, 20);
             //Health Bar
