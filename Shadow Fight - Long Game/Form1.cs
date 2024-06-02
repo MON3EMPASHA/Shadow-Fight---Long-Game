@@ -349,14 +349,14 @@ namespace Shadow_Fight___Long_Game
             {
                 if(Hero.jumbFlag <= mid)
                 {
-                    Hero.x += speed * 2;
-                    Hero.y -= speed*2;
+                    Hero.x += speed * 3;
+                    Hero.y -= speed*3;
                     Hero.jumbFlag += 1;
                 }
                 if(Hero.jumbFlag >mid)
                 {
-                    Hero.x += speed * 2;
-                    Hero.y += speed*2;
+                    Hero.x += speed * 3;
+                    Hero.y += speed*3;
                     Hero.jumbFlag += 1;
                 }
                 if (Hero.jumbFlag == 9)
