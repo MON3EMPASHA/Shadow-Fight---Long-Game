@@ -132,6 +132,7 @@ class HeroActor
         maxFrames = 0;
     }
 }
+
 class Hero
 {
     public int X, Y, iframe, speed, flagjump, flagkill;
@@ -274,7 +275,7 @@ namespace Shadow_Fight___Long_Game
 
         //Flags
         int flagheroleft = 0; bool flag_moving = false;
-        int zombieBackground = 3, bossBackground = 4, heroIndex = 1;
+        int zombieBackground = 3, bossBackground = 4, heroIndex = 2;
         bool flagtale3selm = false; bool flagfall = false;
         bool leaveHeroAlone = false; bool tl3asanser = false;
 
@@ -284,7 +285,7 @@ namespace Shadow_Fight___Long_Game
         //counts
         int ctenmy2tick = 0;
         int timerCounter = -1, timerLimit = 50;
-        int ctDie = 0;
+
         //backfround 
         int backGroundIndex = 3; // it could be 1 or 2 or 3 or 4 or 5
         int bcgrondiframe = 0; // used in the fifth background only
@@ -296,7 +297,7 @@ namespace Shadow_Fight___Long_Game
         HeroActor leadder;
         HeroActor Elevator;
         int bulletsLimit = 50;
-        int heroHealth = 270, zombieEatings = 0, zombieDead = 0, zombieDeadLimit = 1;
+        int heroHealth = 270, zombieEatings = 0, zombieDead = 0, zombieDeadLimit = 3;
         bool finishRound = false;
         int enemyDamage = 3;
 
@@ -307,7 +308,7 @@ namespace Shadow_Fight___Long_Game
             this.Paint += Form1_Paint;
             this.KeyDown += Form1_KeyDown;
             this.KeyUp += Form1_KeyUp;
-            tt.Tick += Tt_Tick; tt.Interval = 50; tt.Start();
+            tt.Tick += Tt_Tick; tt.Interval = 50;
         }
 
         private void Form1_KeyUp(object sender, KeyEventArgs e)
@@ -328,7 +329,7 @@ namespace Shadow_Fight___Long_Game
         void handleHeroEvents()
         {
             // -1. zombie damage hero
-            heroHealth -= zombieEatings * 1;
+            heroHealth -= zombieEatings * 3;
 
 
             // 0. moveZombies
@@ -336,7 +337,7 @@ namespace Shadow_Fight___Long_Game
             {
                 HeroActor zombie = Zombies[i];
                 if (zombie.health > 0 && zombie.eating == false)
-                    zombie.x -= 5;
+                    zombie.x -= 10;
                 if (Hero != null)
                 {
                     if (zombie.x - 20 < Hero.x + Hero.image.Width - 50 && zombie.x - 20 > Hero.x && zombie.eating == false)
@@ -530,10 +531,14 @@ namespace Shadow_Fight___Long_Game
 
                 }
             }
-            if (Hero.health <= 0 && ctDie==0)
+            if (heroHealth <= 0)
             {
-                MessageBox.Show("Game Over");
-                ctDie++;
+                MessageBox.Show("Game Over \n Play again");
+                tt.Stop();
+                backGroundIndex = 3;
+                heroHealth = 270;
+                InitializeGame();
+
             }
         }
         void etl3lader(int index)
@@ -576,11 +581,11 @@ namespace Shadow_Fight___Long_Game
 
                 if (backGroundIndex == bossBackground && enemy.flaglist == "Idle")
                 {
-                    if (enemylist[0].X + 5 > Hero.x + Hero.Widht)
-                        enemylist[0].X -= 5;
+                    if (enemylist[0].X + 170 > Hero.x + Hero.Widht)
+                        enemylist[0].X -= 6;
 
                     ctenmy2tick++;
-                    if (ctenmy2tick >= 25)
+                    if (ctenmy2tick >= 15 && enemylist[0].X < Hero.x + Hero.Widht)
                     {
                         enemy.flaglist = "k1";
                         enemy.iframe = 0;
@@ -913,6 +918,7 @@ namespace Shadow_Fight___Long_Game
         }
         void InitializeGame()
         {
+            tt.Start();
             //Initializing when Pressing R
             heroList.Clear(); background.Clear(); bcgrondiframe = 0; Bullets.Clear(); Zombies.Clear();
             enemylist.Clear();
