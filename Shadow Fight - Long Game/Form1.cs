@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Management.Instrumentation;
 using System.Windows.Forms;
 using System.Xml.Linq;
 using static System.Windows.Forms.AxHost;
@@ -10,7 +11,7 @@ class HealthBar
 {
     public int X, Y, Width, Height;
     public int MaxHealth;
-    public int CurrentHealth;
+    public float CurrentHealth;
 
     public HealthBar(int x, int y, int width, int height, int maxHealth)
     {
@@ -55,14 +56,14 @@ class HeroActor
         jumb = new List<Bitmap>();
         die = new List<Bitmap>();
 
-        if(width > 0 && height > 0)
+        if (width > 0 && height > 0)
         {
             for (int i = 1; i < 3; i++)
                 walk.Add(new Bitmap(new Bitmap("Man/walk/" + i + ".png"), width, height));
 
             for (int i = 1; i < 9; i++)
                 jumb.Add(new Bitmap(new Bitmap("Man/jumb/" + i + ".png"), width, height));
-        
+
             for (int i = 1; i < 7; i++)
                 die.Add(new Bitmap(new Bitmap("Man/Die/" + i + ".png"), width, height));
         }
@@ -134,15 +135,15 @@ class HeroActor
 
 class Hero
 {
-    public int X, Y,iframe,speed,flagjump,flagkill;
-    public List<Bitmap> ImgsR,ImgsL,ImgsJ,ImgsK1;
+    public int X, Y, iframe, speed, flagjump, flagkill;
+    public List<Bitmap> ImgsR, ImgsL, ImgsJ, ImgsK1;
     public HealthBar HealthBarr;
     public bool show = true;
 
     public Hero(int x, int y, bool show)
     {
-        this.show = show;   
-        X = 100; Y=490; 
+        this.show = show;
+        X = 100; Y = 490;
         iframe = 0;
         speed = 30;
         flagjump = 0;
@@ -207,25 +208,37 @@ class AdvancedImage
 }
 class Enemy
 {
-    public int X, Y, W, H,iframe;
+    public int X, Y, W, H, iframe;
     public List<Bitmap> Idle = new List<Bitmap>(), k1 = new List<Bitmap>();
     public string flaglist;
+    public HealthBar HealthBarr;
+
     public Enemy(int type)
     {
+        //Health bar
+        HealthBarr = new HealthBar(1200, 30, 270, 20, 100);
+        //
         iframe = 0;
         //Create Enemy 2
         switch (type)
         {
             case 2:
                 flaglist = "Idle";
-                X = 700; Y = 380;
+                X = 700; Y = 500;
                 //Stand state
                 for (int i = 1; i <= 9; i++)
-                    Idle.Add(new Bitmap($"Enmy2/idle/{i}.png"));
-                
+                {
+                    Bitmap ssw = new Bitmap($"Enmy2/idle/{i}.png");
+                    ssw.MakeTransparent(ssw.GetPixel(0,0));
+                    Idle.Add(ssw);
+                }
                 //kill 1  movements
                 for (int i = 1; i <= 27; i++)
-                    k1.Add(new Bitmap($"Enmy2/k1/{i}.png"));
+                {
+                    Bitmap ssw = new Bitmap($"Enmy2/k1/{i}.png");
+                    ssw.MakeTransparent(ssw.GetPixel(0, 0));
+                    k1.Add(ssw);
+                }
                 break;
         }
     }
@@ -251,20 +264,19 @@ namespace Shadow_Fight___Long_Game
         Bitmap off;
 
         //Lists
-        List<Hero> heroList=new List<Hero>(); 
-        List<AdvancedImage> background = new List<AdvancedImage>(); 
+        List<Hero> heroList = new List<Hero>();
+        List<AdvancedImage> background = new List<AdvancedImage>();
         List<Enemy> enemylist = new List<Enemy>();
         List<HeroActor> Bullets = new List<HeroActor>();
         List<HeroActor> Zombies = new List<HeroActor>();
-        List<HeroActor> leadders = new List<HeroActor>();
-        
+
         List<int> trackZombies = new List<int>();
 
         //Flags
         int flagheroleft = 0; bool flag_moving = false;
         int zombieBackground = 3, bossBackground = 4, heroIndex = 1;
-        bool flagtale3selm = false; bool flagfall=false;
-        bool leaveHeroAlone = false;
+        bool flagtale3selm = false; bool flagfall = false;
+        bool leaveHeroAlone = false; bool tl3asanser = false;
 
         //Timer
         Timer tt = new Timer();
@@ -282,14 +294,15 @@ namespace Shadow_Fight___Long_Game
         HeroActor Hero;
         Rectangle laser;
         HeroActor leadder;
+        HeroActor Elevator;
         int bulletsLimit = 50;
         int heroHealth = 270, zombieEatings = 0, zombieDead = 0, zombieDeadLimit = 1;
         bool finishRound = false;
 
-        
+
         public Form1()
         {
-            WindowState= FormWindowState.Maximized;
+            WindowState = FormWindowState.Maximized;
             this.Load += Form1_Load;
             this.Paint += Form1_Paint;
             this.KeyDown += Form1_KeyDown;
@@ -303,12 +316,13 @@ namespace Shadow_Fight___Long_Game
             heroList[0].iframe = 0;
             heroList[0].Y = 490;
             laser = null;
+            
             if (flagtale3selm)
             {
                 flagtale3selm = false;
                 flagfall = true;
             }
-           // DrawDubb(CreateGraphics());
+            // DrawDubb(CreateGraphics());
         }
 
         void handleHeroEvents()
@@ -321,18 +335,18 @@ namespace Shadow_Fight___Long_Game
             for (int i = 0; i < Zombies.Count; i++)
             {
                 HeroActor zombie = Zombies[i];
-                if(zombie.health > 0 && zombie.eating == false)
+                if (zombie.health > 0 && zombie.eating == false)
                     zombie.x -= 5;
-                if(Hero != null)
+                if (Hero != null)
                 {
-                    if(zombie.x - 20 < Hero.x + Hero.image.Width - 50 && zombie.x - 20 > Hero.x && zombie.eating == false)
+                    if (zombie.x - 20 < Hero.x + Hero.image.Width - 50 && zombie.x - 20 > Hero.x && zombie.eating == false)
                     {
                         zombie.eating = true;
                         zombie.setFrames(zombie.jumb);
                         zombieEatings += 1;
-                    
+
                     }
-                    if(zombie.eating && !(zombie.x - 20 < Hero.x + Hero.image.Width - 50 && zombie.x - 20 > Hero.x))
+                    if (zombie.eating && !(zombie.x - 20 < Hero.x + Hero.image.Width - 50 && zombie.x - 20 > Hero.x))
                     {
                         zombie.setFrames(zombie.walk);
                         zombie.eating = false;
@@ -345,18 +359,18 @@ namespace Shadow_Fight___Long_Game
 
             // 1. Jumb
             int speed = 5, mid = 4, bulletSpeed = 30;
-            if(Hero != null && Hero.jumbFlag != 0)
+            if (Hero != null && Hero.jumbFlag != 0)
             {
-                if(Hero.jumbFlag <= mid)
+                if (Hero.jumbFlag <= mid)
                 {
                     Hero.x += speed * 3;
-                    Hero.y -= speed*3;
+                    Hero.y -= speed * 3;
                     Hero.jumbFlag += 1;
                 }
-                if(Hero.jumbFlag >mid)
+                if (Hero.jumbFlag > mid)
                 {
                     Hero.x += speed * 3;
-                    Hero.y += speed*3;
+                    Hero.y += speed * 3;
                     Hero.jumbFlag += 1;
                 }
                 if (Hero.jumbFlag == 9)
@@ -373,7 +387,7 @@ namespace Shadow_Fight___Long_Game
             {
                 HeroActor bullet = Bullets[i];
                 bullet.x += bulletSpeed;
-                if(bullet.x > ClientSize.Width)
+                if (bullet.x > ClientSize.Width)
                 {
                     Bullets.RemoveAt(i);
                     i--;
@@ -383,7 +397,7 @@ namespace Shadow_Fight___Long_Game
                 {
                     HeroActor zombie = Zombies[j];
                     int point = bullet.x + bullet.image.Width + range;
-                    if (point > zombie.x && point < zombie.x + zombie.image.Width && bullet.y + 20 > zombie.y && zombie.health  > 0)
+                    if (point > zombie.x && point < zombie.x + zombie.image.Width && bullet.y + 20 > zombie.y && zombie.health > 0)
                     {
                         zombie.health -= 20;
                         Bullets.RemoveAt(i);
@@ -391,40 +405,57 @@ namespace Shadow_Fight___Long_Game
                         {
                             trackZombies.Add(j);
                             zombie.setFrames(zombie.die);
-                            zombieDead += 1;
+                           // zombieDead += 1;
                         }
                     }
 
+                }
+                if (backGroundIndex == bossBackground)
+                {
+                    for (int k = 0; k < enemylist.Count; k++)
+                    {
+                        if (Bullets[i].x > enemylist[k].X && Bullets[i].x < enemylist[k].X + enemylist[k].Idle[0].Width)
+                        {
+                            enemylist[k].HealthBarr.CurrentHealth -= 5;
+                            Bullets.RemoveAt(i);
+                            break;
+                        }
+                    }
                 }
             }
 
             // 3. Track Dead Zombies with indexes
             for (int i = 0; i < trackZombies.Count; i++)
             {
-                int index = trackZombies[i];
-                HeroActor zombie = Zombies[index];
-                if (zombie.iFrame == zombie.maxFrames - 1 && zombie.health <= 0)
+                if (Zombies.Count > 0)
                 {
-                    Zombies.RemoveAt(index);
-                    trackZombies.RemoveAt(i);
+                    if (Zombies.Count == 0) { break; }
+                    int index = trackZombies[i];
+                    HeroActor zombie = Zombies[index];
+                    if (zombie.iFrame == zombie.maxFrames - 1 && zombie.health <= 0)
+                    {
+                        Zombies.RemoveAt(index);
+                        trackZombies.RemoveAt(i);
+                        zombieDead += 1;
+                    }
                 }
             }
-        
+
         }
         void createZombie()
         {
-            
+
             HeroActor zombie = new HeroActor(ClientSize.Width, 625, 0, 0, "Zombies/Zombie1/zombiewalk (1).png", false, false);
             zombie.Frames = new List<Bitmap>();
             zombie.walk = new List<Bitmap>();
             zombie.jumb = new List<Bitmap>();
             zombie.die = new List<Bitmap>();
             zombie.setFrames(zombie.walk);
-            
+
             for (int i = 1; i <= 93; i++)
                 zombie.walk.Add(new Bitmap($"Zombies/Zombie1/zombiewalk ({i}).png"));
 
-            for (int i = 1; i <= 39; i++)
+            for (int i = 1; i <= 29; i++)
                 zombie.die.Add(new Bitmap($"Zombies/Zombie3/zombiedeath ({i}).png"));
 
             for (int i = 1; i <= 40; i++)
@@ -447,7 +478,7 @@ namespace Shadow_Fight___Long_Game
                 if (backGroundIndex == zombieBackground && !finishRound)
                     createZombie();
             }
-            if (timerCounter == -1 && backGroundIndex == zombieBackground && zombieDead <= zombieDeadLimit)
+            if (timerCounter == -1 && backGroundIndex == zombieBackground && zombieDead < zombieDeadLimit)
                 createZombie();
             timerCounter++;
             handleHeroEvents();
@@ -455,19 +486,19 @@ namespace Shadow_Fight___Long_Game
             //if(zombieDead >= zombieDeadLimit && Hero != null && Hero.x < ClientSize.Width / 2)
             if (finishRound)
             {
-                if (leadder == null)
+                if (leadder == null && Zombies.Count == 0)
+                {
                     leadder = new HeroActor(ClientSize.Width - 200, 200, 0, 0, "ladder.png", false, false);
-                if (leadders.Count == 0)
-                {
-
+                   // MessageBox.Show("Lader");
+                    Elevator = new HeroActor(ClientSize.Width - 430, 450, 0, 0, "elevator.png", false, false);
                 }
-                if (Hero != null && Hero.x < ClientSize.Width / 2 && leaveHeroAlone == false)
-                    Hero.x = ClientSize.Width / 2 + 2;
-                if (Zombies.Count != 0)
-                {
-                    Zombies.Clear();
-                }
-                trackZombies.Clear();
+                //if (Hero != null && Hero.x < ClientSize.Width / 2 && leaveHeroAlone == false)
+                //    Hero.x = ClientSize.Width / 2 + 2;
+                //if (Zombies.Count != 0)
+                //{
+                //    Zombies.Clear();
+                //}
+                //trackZombies.Clear();
             }
 
             if (heroList.Count > 0)
@@ -477,13 +508,20 @@ namespace Shadow_Fight___Long_Game
             }
             MoveBackground();
             ManageAndMoveEnemies();
-            if(flagfall )
+            if (flagfall)
             {
                 if (Hero.y < 630)
                     Hero.y += 20;
                 else flagfall = false;
             }
-            
+            etl3asanser();
+            if (backGroundIndex == bossBackground && enemylist.Count>0)
+            {
+                if (enemylist[0].X < Hero.x + Hero.Widht)
+                {
+                    //kill hero
+                }
+            }
         }
         void etl3lader(int index)
         {
@@ -493,9 +531,28 @@ namespace Shadow_Fight___Long_Game
                 backGroundIndex = 4;
                 Hero.x = 50;
                 leaveHeroAlone = true;
-                
-                
+
+
                 InitializeGame();
+            }
+        }
+        void etl3asanser()
+        {
+            if (tl3asanser)
+            {
+                if (Hero.y > 250)
+                {
+                    Hero.y -= 5;
+                    Elevator.y -= 5;
+                }
+                else
+                {
+                    backGroundIndex = 4;
+                    Hero.x = 50;
+                    leaveHeroAlone = true;
+                    InitializeGame();
+                    tl3asanser = false;
+                }
             }
         }
         void ManageAndMoveEnemies()
@@ -504,8 +561,12 @@ namespace Shadow_Fight___Long_Game
             {
                 Enemy enemy = enemylist[i];
 
-                if (backGroundIndex == 5 && enemy.flaglist == "Idle")
+                if (backGroundIndex == bossBackground && enemy.flaglist == "Idle")
                 {
+                    if (enemylist[0].X+5>Hero.x+Hero.Widht)
+                    {
+                        enemylist[0].X-=5;
+                    }
                     ctenmy2tick++;
                     if (ctenmy2tick >= 40)
                     {
@@ -520,10 +581,10 @@ namespace Shadow_Fight___Long_Game
 
                 if (enemy.flaglist == "Idle")
                     temp = enemy.Idle;
-                
+
                 else if (enemy.flaglist == "k1")
                     temp = enemy.k1;
-                
+
                 if (enemy.iframe == temp.Count)
                 {
                     if (enemy.flaglist == "k1")
@@ -538,7 +599,7 @@ namespace Shadow_Fight___Long_Game
         }
         void herojump()
         {
-            
+
             if (heroList.Count > 0 && heroList[0].flagjump == 1)
             {
                 if (heroList[0].iframe < 9) { heroList[0].Y -= heroList[0].speed; }
@@ -561,10 +622,10 @@ namespace Shadow_Fight___Long_Game
         }
         void MoveBackground()
         {
-            if ( flag_moving  )
+            if (flag_moving)
             {
-                
-                if((heroIndex==1&& Hero!=null && Hero.x > 399 && (zombieDead < zombieDeadLimit)||backGroundIndex==4)|| (heroIndex==2 && heroList[0].X>399))
+
+                if ((heroIndex == 1 && Hero != null && Hero.x > 399 && (zombieDead < zombieDeadLimit) || backGroundIndex == 4) || (heroIndex == 2 && heroList[0].X > 399))
                 {
                     for (int i = 0; i < background.Count; i++)
                     {
@@ -639,7 +700,7 @@ namespace Shadow_Fight___Long_Game
 
             }
         }
-        
+
         int firstZombie()
         {
             for (int i = 0; i < Zombies.Count; i++)
@@ -650,7 +711,7 @@ namespace Shadow_Fight___Long_Game
             }
             return -1;
         }
-        
+
         private void Form1_KeyDown(object sender, KeyEventArgs e)
         {
             int speed = 10;
@@ -674,7 +735,7 @@ namespace Shadow_Fight___Long_Game
                             break;
                         case 1:
 
-                            if (!flagtale3selm && !flagfall)
+                            if (!flagtale3selm && !flagfall && !tl3asanser)
                             {
                                 if (Hero.Frames[0] != Hero.walk[0])
                                     Hero.setFrames(Hero.walk);
@@ -684,11 +745,10 @@ namespace Shadow_Fight___Long_Game
                             break;
                     }
 
-                        
+
                     break;
                 case Keys.Right:
                     flag_moving = true;
-
                     switch (heroIndex)
                     {
                         case 2:
@@ -697,7 +757,7 @@ namespace Shadow_Fight___Long_Game
                                 heroList[0].iframe++;
                                 if (backGroundIndex != 1 && backGroundIndex != 5)
                                 {
-                                    if ((heroIndex == 2 && heroList[0].X < 400) || (heroIndex == 1 && Hero.x<400))
+                                    if ((heroIndex == 2 && heroList[0].X < 400) || (heroIndex == 1 && Hero.x < 400))
                                         heroList[0].X += heroList[0].speed;
                                 }
                                 else { heroList[0].X += heroList[0].speed; }
@@ -709,17 +769,18 @@ namespace Shadow_Fight___Long_Game
                             break;
                         case 1:
 
-                                if (!flagtale3selm && !flagfall)
-                                {
+                            if (!flagtale3selm && !flagfall && !tl3asanser)
+                            {
                                 if (Hero.Frames[0] != Hero.walk[0])
                                     Hero.setFrames(Hero.walk);
-                                if ((heroIndex == 1 && Hero.x < 400) || zombieDead == zombieDeadLimit)
+                                if ((heroIndex == 1 && Hero.x < 400) || zombieDead == zombieDeadLimit || finishRound )
                                     Hero.x += speed;
-                                    Hero.Next();
-                                }
+
+                                Hero.Next();
+                            }
                             break;
                     }
-                    break;                 
+                    break;
                 case Keys.Up:
                     switch (heroIndex)
                     {
@@ -731,10 +792,18 @@ namespace Shadow_Fight___Long_Game
                             }
                             break;
                         case 1:
-                            if (leadder!=null&& Hero.x+Hero.image.Width/2 > leadder.x && Hero.x + Hero.image.Width / 2 < leadder.x + leadder.image.Width )
+                            if ( leadder != null && Elevator != null && Hero.x + Hero.image.Width / 2 > leadder.x && Hero.x + Hero.image.Width / 2 < leadder.x + leadder.image.Width)
                             {
                                 flagtale3selm = true;
                                 etl3lader(1);
+                            }
+                            else if (leadder != null && Elevator != null && Hero.x + Hero.image.Width / 2 > Elevator.x && Hero.x + Hero.image.Width / 2 < Elevator.x + Elevator.image.Width )
+                            {
+                                if (!tl3asanser)
+                                {
+                                    Hero.y -= 100;
+                                    tl3asanser = true;
+                                }
                             }
                             else
                             {
@@ -746,7 +815,7 @@ namespace Shadow_Fight___Long_Game
                             }
                             break;
                     }
-                    
+
                     break;
                 case Keys.Space:
                     switch (heroIndex)
@@ -759,7 +828,7 @@ namespace Shadow_Fight___Long_Game
                             }
                             break;
                         case 1:
-                            if (bulletsLimit > 0)
+                            if (bulletsLimit > 0 && !tl3asanser )
                             {
 
                                 Bullets.Add(new HeroActor(Hero.x + Hero.image.Width - 30, Hero.y + 25, 25, 10, "Man/bullet3.png", false, false));
@@ -779,9 +848,9 @@ namespace Shadow_Fight___Long_Game
                         laserWidth = selectedZombie.x - Hero.x - Hero.image.Width + 20;
 
                     }
-                    
+
                     laser = new Rectangle(Hero.x + Hero.image.Width - 10, Hero.y + 30, laserWidth, 10, Color.Red);
-                    if(zombieIndex >= 0)
+                    if (zombieIndex >= 0)
                     {
                         selectedZombie.health -= 1;
                         if (selectedZombie.health <= 0)
@@ -791,55 +860,57 @@ namespace Shadow_Fight___Long_Game
                             zombieDead += 1;
                         }
                     }
-                    
-                    
+
+
                     break;
                 case Keys.R:
                     InitializeGame();
                     break;
                 case Keys.Escape:
 
-                    if(backGroundIndex < 5)
+                    if (backGroundIndex < 5)
                         backGroundIndex++;
                     else
                         backGroundIndex = 1;
                     InitializeGame();
                     break;
                 case Keys.Down:
-                    if(heroIndex==1)
+                    if (heroIndex == 1)
                     {
-                        heroIndex = 2;
+                      //  heroIndex = 2;
                     }
                     else
                     {
-                        heroIndex = 1;
+                       // heroIndex = 1;
                     }
                     InitializeGame();
                     break;
-                
+
             }
-            
+
         }
         private void Form1_Paint(object sender, PaintEventArgs e)
         {
-           DrawDubb(e.Graphics);
+            DrawDubb(e.Graphics);
         }
         private void Form1_Load(object sender, EventArgs e)
         {
-            off=new Bitmap(this.ClientSize.Width, this.ClientSize.Height);
+            off = new Bitmap(this.ClientSize.Width, this.ClientSize.Height);
             InitializeGame();
         }
         void InitializeGame()
         {
             //Initializing when Pressing R
-            heroList.Clear(); background.Clear(); bcgrondiframe = 0;
-            Bullets.Clear(); Zombies.Clear();
+            heroList.Clear(); background.Clear(); bcgrondiframe = 0; Bullets.Clear(); Zombies.Clear();
             enemylist.Clear();
             zombieEatings = 0;
             timerCounter = -1;
             Zombies.Clear();
             Hero = null;
             heroHealth = 270;
+            bulletsLimit = 50;
+            leadder = null;
+            Elevator = null;
             // Creating Hero
             int y;
             if (backGroundIndex != 5)
@@ -848,19 +919,17 @@ namespace Shadow_Fight___Long_Game
                 y = 490;
 
             bool show = false;
-            if(heroIndex == 2)
+            if (heroIndex == 2)
                 show = true;
-            Hero monem = new Hero(100, y, show); 
+            Hero monem = new Hero(100, y, show);
             heroList.Add(monem);
-            if (heroIndex == 1) 
+            if (heroIndex == 1)
                 Hero = new HeroActor(100, 630, 150, 150, "Man/walk/1.png", false, false);
-            if(backGroundIndex == bossBackground)
+            if (backGroundIndex == bossBackground)
             {
                 Enemy monemm = new Enemy(2);
                 enemylist.Add(monemm);
             }
-            
-
             //Background
             {
                 switch (backGroundIndex)
@@ -919,7 +988,7 @@ namespace Shadow_Fight___Long_Game
                             AdvancedImage pnn = new AdvancedImage(this.ClientSize.Width, this.ClientSize.Height, sourceRect, destRect, bitmap);
                             background.Add(pnn);
                         }
-                        
+
                         break;
                 }
 
@@ -954,11 +1023,22 @@ namespace Shadow_Fight___Long_Game
             //Enmmy
             for (int i = 0; i < enemylist.Count; i++)
             {
-                Enemy e = enemylist[i];
-                List<Bitmap> temp = new List<Bitmap>();
-                if (e.flaglist == "Idle") { temp = e.Idle; }
-                else if (e.flaglist == "k1") { temp = e.k1; }
-                g.DrawImage(temp[e.iframe], e.X, e.Y);
+                if (enemylist[i].HealthBarr.CurrentHealth > 0)
+                {
+                    Enemy e = enemylist[i];
+                    List<Bitmap> temp = new List<Bitmap>();
+                    if (e.flaglist == "Idle") { temp = e.Idle; }
+                    else if (e.flaglist == "k1") { temp = e.k1; }
+                    g.DrawImage(temp[e.iframe], e.X, e.Y, 385, 317);
+
+                    //Health bar
+                    HealthBar hb = e.HealthBarr;
+                    float healthPercentage = (float)hb.CurrentHealth / hb.MaxHealth;
+                    int healthBarWidth = (int)(hb.Width * healthPercentage);
+                    g.FillRectangle(Brushes.Gray, hb.X, hb.Y, hb.Width, hb.Height);
+                    g.FillRectangle(Brushes.Red, hb.X + (hb.Width - healthBarWidth), hb.Y, healthBarWidth, hb.Height);
+                    g.DrawRectangle(Pens.Black, hb.X, hb.Y, hb.Width, hb.Height);
+                }
             }
         }
         void drawHero1(Graphics g)
@@ -969,25 +1049,28 @@ namespace Shadow_Fight___Long_Game
                 //MessageBox.Show("Hero Show Flag=" + heroList[0].show);
                 if (heroList[i].show)
                 {
+                    int nm = 0;
+                    if (backGroundIndex == 4) { nm = 3; }
+                    if (backGroundIndex == 3) { nm = 2; }
 
                     //Move Left
                     if (flagheroleft == 1 && heroList[0].flagjump == 0 && heroList[0].flagkill == 0)
-                        g.DrawImage(heroList[i].ImgsL[heroList[i].iframe], heroList[i].X, heroList[i].Y, heroList[i].ImgsL[heroList[i].iframe].Width * 2, heroList[i].ImgsL[heroList[i].iframe].Height * 2);
+                        g.DrawImage(heroList[i].ImgsL[heroList[i].iframe], heroList[i].X, heroList[i].Y, heroList[i].ImgsL[heroList[i].iframe].Width * nm, heroList[i].ImgsL[heroList[i].iframe].Height * nm);
 
 
                     //Move Right 
                     else if (flagheroleft == 0 && heroList[0].flagjump == 0 && heroList[0].flagkill == 0)
-                        g.DrawImage(heroList[i].ImgsR[heroList[i].iframe], heroList[i].X, heroList[i].Y, heroList[i].ImgsR[heroList[i].iframe].Width * 2, heroList[i].ImgsR[heroList[i].iframe].Height * 2);
+                        g.DrawImage(heroList[i].ImgsR[heroList[i].iframe], heroList[i].X, heroList[i].Y, heroList[i].ImgsR[heroList[i].iframe].Width * nm, heroList[i].ImgsR[heroList[i].iframe].Height * nm);
 
 
                     //jump
                     else if (heroList[0].flagjump == 1 && heroList[0].flagkill == 0)
-                        g.DrawImage(heroList[i].ImgsJ[heroList[i].iframe], heroList[i].X, heroList[i].Y, heroList[i].ImgsJ[heroList[i].iframe].Width * 4, heroList[i].ImgsJ[heroList[i].iframe].Height * 4);
+                        g.DrawImage(heroList[i].ImgsJ[heroList[i].iframe], heroList[i].X, heroList[i].Y, heroList[i].ImgsJ[heroList[i].iframe].Width * nm*2, heroList[i].ImgsJ[heroList[i].iframe].Height * nm*2);
 
 
                     //Kill
                     else if (heroList[0].flagkill == 1 && heroList[0].flagjump == 0)
-                        g.DrawImage(heroList[i].ImgsK1[heroList[i].iframe], heroList[i].X, heroList[i].Y, heroList[i].ImgsK1[heroList[i].iframe].Width * 4, heroList[i].ImgsK1[heroList[i].iframe].Height * 4);
+                        g.DrawImage(heroList[i].ImgsK1[heroList[i].iframe], heroList[i].X, heroList[i].Y, heroList[i].ImgsK1[heroList[i].iframe].Width * nm * 2, heroList[i].ImgsK1[heroList[i].iframe].Height * nm * 2);
 
 
                     //Hero Health bar
@@ -1000,7 +1083,10 @@ namespace Shadow_Fight___Long_Game
         }
         void drawSingleImage(HeroActor image, Graphics g)
         {
-            if(image != null) 
+            int nm = 0;
+            if (backGroundIndex == 4) { nm = 1; }
+            if (backGroundIndex == 3) { nm = 1; }
+            if (image != null)
                 g.DrawImage(image.image, image.x, image.y);
         }
         void drawHealth(List<HeroActor> Players, Graphics g)
@@ -1009,11 +1095,11 @@ namespace Shadow_Fight___Long_Game
             for (int i = 0; i < Players.Count; i++)
             {
                 HeroActor c = Players[i];
-                
+
                 int height = 10, startX = c.x + 10, startY = c.y - 5;
 
                 // draw Back Bar
-                if(c.health > 0)
+                if (c.health > 0)
                 {
                     g.FillRectangle(new SolidBrush(backColorBar), startX, startY, c.healthBar, height);
                     g.DrawRectangle(new Pen(Color.Black, 3), startX, startY, c.healthBar, height);
@@ -1024,6 +1110,7 @@ namespace Shadow_Fight___Long_Game
 
                 }
             }
+        
         }
         void DrawScene(Graphics g)
         {
@@ -1031,26 +1118,29 @@ namespace Shadow_Fight___Long_Game
             drawBackGround(g);
             drawHero1(g);
             drawEnemy(g);
-            if(!leaveHeroAlone)
+            if(backGroundIndex==zombieBackground && leadder!=null && Elevator!=null)
+            {
                 drawSingleImage(leadder, g);
+                drawSingleImage(Elevator, g);
+            }
             drawSingleImage(Hero, g);
             DrawListImages(Bullets, g);
             DrawListImages(Zombies, g);
 
-            if(heroIndex == 1)
+            if (heroIndex == 1)
             {
                 // bullets
                 g.DrawString("" + bulletsLimit, new Font("Arial", 16, FontStyle.Bold), Brushes.White, 160, 80);
                 g.DrawImage(new Bitmap(new Bitmap("Man/bullet3.png"), 30, 15), 210, 85);
 
-                
+
                 g.DrawString("" + zombieDead, new Font("Arial", 16, FontStyle.Bold), Brushes.White, 250, 80);
                 g.DrawImage(new Bitmap(new Bitmap("Zombies/Zombie1/zombiewalk (1).png"), 50, 50), 270, 80);
             }
             drawHealth(Zombies, g);
-            
 
-            if(laser != null)
+
+            if (laser != null)
             {
                 g.FillRectangle(new SolidBrush(laser.cl), laser.x, laser.y, laser.Widht, laser.Heigth);
                 g.DrawRectangle(new Pen(Color.Black, 3), laser.x, laser.y, laser.Widht, laser.Heigth);
